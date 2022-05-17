@@ -1,4 +1,4 @@
-package net.osomahe.pulsarmonitor.read.entity;
+package net.osomahe.pulsarmonitor.subscribe.entity;
 
 import java.io.IOException;
 

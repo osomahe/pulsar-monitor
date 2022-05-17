@@ -1,4 +1,4 @@
-package net.osomahe.pulsarmonitor.read.control;
+package net.osomahe.pulsarmonitor.subscribe.control;
 
 import com.jayway.jsonpath.JsonPath;
 import net.osomahe.pulsarmonitor.schema.boundary.SchemaValidationFacade;

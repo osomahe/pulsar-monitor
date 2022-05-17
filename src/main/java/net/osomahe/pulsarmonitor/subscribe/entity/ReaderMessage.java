@@ -1,4 +1,4 @@
-package net.osomahe.pulsarmonitor.read.entity;
+package net.osomahe.pulsarmonitor.subscribe.entity;
 
 import org.apache.pulsar.client.api.Message;
 
