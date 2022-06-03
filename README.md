@@ -25,13 +25,15 @@ Environment variables:
 
 * **MONITOR_JSON_SCHEMA_DIR** - path to directory where json schema files are stored e.g. `/opt/json-schemas`
 * **MONITOR_TOPICS_PATTERNS** - define which topic patters should application monitor e.g. `persistent://public/default/customer,persistent://public/default/catalog`
-* MONITOR_USER_BREAKDOWN_JSONPATH** - default "type" define json path for user's metrics breakdown
+* **MONITOR_USER_BREAKDOWN_JSONPATH** - default "type" define json path for user's metrics breakdown
 * QUARKUS_LOG_CATEGORY__NET_OSOMAHE_PULSARMONITOR__LEVEL - default "INFO" for detailed debugging you can set this to `DEBUG`
 * PULSAR_SERVICE_URL - default "pulsar://localhost:6650" url to connect to Apache Pulsar instance
 * PULSAR_TLS_TRUST_CERT - not set by default, used for transport encryption using tLS certificate e.g. `/pulsar/certs/ca.cert.pem`
 * PULSAR_TLS_CERT_FILE - not set by default, path for client certificate for TLS authorization `/pulsar/certs/pulsar-source-app.cert.pem`
 * PULSAR_TLS_KEY_FILE - not set by default, path for client key to certificate for TLS authorization `/pulsar/certs/pulsar-source-app.key-pk8.pem`
- 
+* PULSAR_CLIENT_NAME - default "pulsar-monitor" name used subscription name for message consuming
+* PULSAR_HEALTH_TOPIC - default "non-persistent://public/default/health-check" topic used for health checking of readiness probe
+
 Examples:
 ```bash
 docker run -d --name pulsar-monitor -p 8080:8080 -e PULSAR_SERVICE_URL="pulsar://pulsarhostname:6650"  -e MONITOR_JSON_SCHEMA_DIR="/opt/json-schemas" -e MONITOR_TOPICS_PATTERNS="persistent://public/default/customer,persistent://public/default/catalog" ghcr.io/osomahe/pulsar-monitor
