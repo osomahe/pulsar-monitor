@@ -26,18 +26,18 @@ public class SchemaValidationFacade {
     Logger log;
 
     @ConfigProperty(name = "monitor.json-schema-dir")
-    String schemaDir;
+    Optional<String> oSchemaDir;
 
     List<SchemaRecord> schemaRecords;
 
 
     @PostConstruct
     void init() throws IOException {
-        if ("".equals(schemaDir)) {
+        if (oSchemaDir.isEmpty() || "".equals(oSchemaDir.orElse(""))) {
             log.errorf("NO schema directory defined!");
             return;
         }
-        schemaRecords = Files.walk(Path.of(schemaDir))
+        schemaRecords = Files.walk(Path.of(oSchemaDir.get()))
                 .filter(Files::isRegularFile)
                 .map(Path::toFile)
                 .filter(file -> !file.isHidden())

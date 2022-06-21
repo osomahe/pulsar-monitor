@@ -26,6 +26,8 @@ Environment variables:
 * **MONITOR_JSON_SCHEMA_DIR** - path to directory where json schema files are stored e.g. `/opt/json-schemas`
 * **MONITOR_TOPICS_PATTERNS** - define which topic patters should application monitor e.g. `persistent://public/default/customer,persistent://public/default/catalog`
 * **MONITOR_USER_BREAKDOWN_JSONPATH** - default "type" define json path for user's metrics breakdown
+* MONITOR_GROUP_PARTITIONED - default "true" defines whether partition topics should be grouped into single one
+* MONITOR_MESSAGE_ENCODING - default "utf-8" defines what encoding should be used to decode loaded message
 * QUARKUS_LOG_CATEGORY__NET_OSOMAHE_PULSARMONITOR__LEVEL - default "INFO" for detailed debugging you can set this to `DEBUG`
 * PULSAR_SERVICE_URL - default "pulsar://localhost:6650" url to connect to Apache Pulsar instance
 * PULSAR_TLS_TRUST_CERT - not set by default, used for transport encryption using tLS certificate e.g. `/pulsar/certs/ca.cert.pem`
