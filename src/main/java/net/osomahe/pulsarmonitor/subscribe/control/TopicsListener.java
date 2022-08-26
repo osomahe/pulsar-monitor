@@ -11,12 +11,12 @@ import org.eclipse.microprofile.metrics.Metadata;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 import org.eclipse.microprofile.metrics.Tag;
 import org.jboss.logging.Logger;
+import org.json.JSONObject;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -25,6 +25,8 @@ import java.util.regex.Pattern;
 public class TopicsListener implements MessageListener<byte[]> {
 
     private static final Pattern TOPIC_GROUPING_PATTERN = Pattern.compile("\\-partition-\\d+");
+
+    private static final String UNKNOWN = "unknown";
 
     @Inject
     Logger log;
@@ -61,41 +63,12 @@ public class TopicsListener implements MessageListener<byte[]> {
         var oSchema = oJsonObject.flatMap(facadeSchema::findSchemaRecord);
         var oUserBreakdown = findJsonPathBreakdown(messageValue);
 
-        var tags = getTags(messageTopic, oSchema, oUserBreakdown);
-
-        if (oJsonObject.isEmpty()) {
-            metricRegistry.counter(Metadata.builder()
-                    .withName("jsonUnrecognized")
-                    .withDescription("Displays number of consumed invalid json messages")
-                    .build(), tags).inc();
-        } else {
-            metricRegistry.counter(Metadata.builder()
-                    .withName("jsonValid")
-                    .withDescription("Displays number of consumed valid json messages")
-                    .build(), tags).inc();
-        }
-        if (oSchema.isEmpty()) {
-            metricRegistry.counter(Metadata.builder()
-                    .withName("schemaUnrecognized")
-                    .withDescription("How many consumed message was application not able to find json schema for")
-                    .build(), tags).inc();
-        } else {
-            metricRegistry.counter(Metadata.builder()
-                    .withName("schemaValid")
-                    .withDescription("How many consumed message was application able to find json schema for")
-                    .build(), tags).inc();
-        }
-        if (oUserBreakdownJsonPath.isPresent()) {
-            if (oUserBreakdown.isEmpty()) {
-                metricRegistry.counter(Metadata.builder().withName("userBreakdownUnrecognized")
-                        .withDescription("How many consumed message was application not able to breakdown by user defined json path")
-                        .build(), tags).inc();
-            } else {
-                metricRegistry.counter(Metadata.builder().withName("userBreakdownValid")
-                        .withDescription("How many consumed message was application not able to breakdown by user defined json path")
-                        .build(), tags).inc();
-            }
-        }
+        metricRegistry.counter(Metadata.builder()
+                                .withName("pulsarMessage")
+                                .withDescription("Displays number of consumed pulsar messages")
+                                .build(),
+                        getTags(messageTopic, oJsonObject, oSchema, oUserBreakdown))
+                .inc();
     }
 
     private String getTopicName(Message<byte[]> message) {
@@ -109,18 +82,15 @@ public class TopicsListener implements MessageListener<byte[]> {
         return topicName;
     }
 
-    private Tag[] getTags(String topic, Optional<SchemaRecord> oSchema, Optional<String> oUserBreakdown) {
-        var tags = new ArrayList<Tag>();
-        tags.add(new Tag("topic", topic));
-        if (oSchema.isPresent()) {
-            tags.add(new Tag("schema", oSchema.get().name));
-        }
-        if (oUserBreakdown.isPresent()) {
-            tags.add(new Tag("userBreakdown", oUserBreakdown.get()));
-        }
+    private Tag[] getTags(String topic, Optional<JSONObject> oJsonObject, Optional<SchemaRecord> oSchema, Optional<String> oUserBreakdown) {
+        var tags = new Tag[4];
+        tags[0] = new Tag("topic", topic);
+        tags[1] = new Tag("contentType", oJsonObject.map(jo -> "json").orElse(UNKNOWN));
+        tags[2] = new Tag("jsonSchema", oSchema.map(schema -> schema.name).orElse(UNKNOWN));
+        tags[3] = new Tag("jsonPathBreakdown", oUserBreakdown.orElse(UNKNOWN));
 
-        log.debugf("tags: %s", String.join(",", tags.stream().map(Tag::toString).toList()));
-        return tags.toArray(new Tag[tags.size()]);
+        log.debugf("tags: %s", tags);
+        return tags;
     }
 
     private Optional<String> findJsonPathBreakdown(String json) {

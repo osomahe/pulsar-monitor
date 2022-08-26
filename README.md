@@ -4,16 +4,12 @@ This application monitors JSON messages in Apache Pulsar. It subscribes to given
 
 Prometheus metrics endpoint path: `/q/metrics`
 
-Application provides 3 layers of validation:
+Application provides metric `pulsarMessage` with four tags:
 
-* **json** - if message is json (jsonValid/jsonUnrecognized)
-* **schema** - if message is valid base on provided json schemas (schemaValid/schemaUnrecognized)
-* **userBreakdown** - if message could be breakdown by user-defined json path (userBreakdownValid/userBreakdownUnrecognized)
-
-Tags:
 * topic - which topic received the message
-* schema - which json schema validated topic
-* userBreakdown - value received from json via configured json path (default `type`) 
+* contentType - what content type is a message (currently recognizes only json or unknown)
+* jsonSchema - which json schema validated topic
+* jsonPathBreakdown - value received from json via configured json path (default `type`) 
 
 ## Installation
 
@@ -43,65 +39,15 @@ docker run -d --name pulsar-monitor -p 8080:8080 -e PULSAR_SERVICE_URL="pulsar:/
 
 ## Metrics examples
 
-
-**jsonUnrecognized**
-
-```
-# HELP application_jsonUnrecognized_total Displays number of consumed invalid json messages
-# TYPE application_jsonUnrecognized_total counter
-application_jsonUnrecognized_total{topic="persistent://public/default/customer"} 12.0
-```
-
-
-**jsonValid**
+**pulsarMessage**
 
 ```
-# HELP application_jsonValid_total Displays number of consumed valid json messages
-# TYPE application_jsonValid_total counter
-application_jsonValid_total{topic="persistent://public/default/customer"} 5.0
-application_jsonValid_total{schema="catalog-item-created",topic="persistent://public/default/catalog",userBreakdown="catalog-item-created"} 14.0
-application_jsonValid_total{schema="customer-order-created",topic="persistent://public/default/customer",userBreakdown="customer-order-created"} 32.0
-application_jsonValid_total{schema="customer-order-paid",topic="persistent://public/default/customer",userBreakdown="customer-order-paid"} 28.0
-```
-
-
-**schemaUnrecognized**
-
-```
-# HELP application_schemaUnrecognized_total How many consumed message was application not able to find json schema for
-# TYPE application_schemaUnrecognized_total counter
-application_schemaUnrecognized_total{topic="persistent://public/default/customer"} 17.0
-```
-
-
-**schemaValid**
-
-```
-# HELP application_schemaValid_total How many consumed message was application able to find json schema for
-# TYPE application_schemaValid_total counter
-application_schemaValid_total{schema="catalog-item-created",topic="persistent://public/default/catalog",userBreakdown="catalog-item-created"} 14.0
-application_schemaValid_total{schema="customer-order-created",topic="persistent://public/default/customer",userBreakdown="customer-order-created"} 32.0
-application_schemaValid_total{schema="customer-order-paid",topic="persistent://public/default/customer",userBreakdown="customer-order-paid"} 28.0
-```
-
-
-**userBreakdownUnrecognized**
-
-```
-# HELP application_userBreakdownUnrecognized_total How many consumed message was application not able to breakdown by user defined json path
-# TYPE application_userBreakdownUnrecognized_total counter
-application_userBreakdownUnrecognized_total{topic="persistent://public/default/customer"} 17.0
-```
-
-
-**userBreakdownValid**
-
-```
-# HELP application_userBreakdownValid_total How many consumed message was application not able to breakdown by user defined json path
-# TYPE application_userBreakdownValid_total counter
-application_userBreakdownValid_total{schema="catalog-item-created",topic="persistent://public/default/catalog",userBreakdown="catalog-item-created"} 14.0
-application_userBreakdownValid_total{schema="customer-order-created",topic="persistent://public/default/customer",userBreakdown="customer-order-created"} 32.0
-application_userBreakdownValid_total{schema="customer-order-paid",topic="persistent://public/default/customer",userBreakdown="customer-order-paid"} 28.0
+# HELP application_pulsarMessage_total Displays number of consumed pulsar messages
+# TYPE application_pulsarMessage_total counter
+application_pulsarMessage_total{contentType="json",jsonPathBreakdown="customer-order-created",jsonSchema="customer-order-created",topic="persistent://public/default/customer"} 42.0
+application_pulsarMessage_total{contentType="json",jsonPathBreakdown="customer-order-paid",jsonSchema="unknown",topic="persistent://public/default/customer"} 17.0
+application_pulsarMessage_total{contentType="json",jsonPathBreakdown="unknown",jsonSchema="unknown",topic="persistent://public/default/customer"} 1.0
+application_pulsarMessage_total{contentType="unknown",jsonPathBreakdown="unknown",jsonSchema="unknown",topic="persistent://public/default/customer"} 1.0
 ```
 
 ### Health checks
