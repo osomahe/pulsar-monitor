@@ -86,6 +86,7 @@ public class SchemaValidationFacade {
                 }
             }
         }
+        log.warnf("No schema was found for json: %s", jsonObject);
         return Optional.empty();
     }
 

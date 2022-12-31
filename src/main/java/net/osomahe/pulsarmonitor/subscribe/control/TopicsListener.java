@@ -98,7 +98,7 @@ public class TopicsListener implements MessageListener<byte[]> {
             try {
                 return Optional.ofNullable(JsonPath.parse(json).read(oUserBreakdownJsonPath.get(), String.class));
             } catch (Exception e) {
-                log.debugf(e, "Cannot read jsonPath: %s in json: %s", oUserBreakdownJsonPath.get(), oneLiner(json));
+                log.warnf(e, "Cannot read jsonPath: %s in json: %s", oUserBreakdownJsonPath.get(), oneLiner(json));
             }
         }
         return Optional.empty();
@@ -108,6 +108,11 @@ public class TopicsListener implements MessageListener<byte[]> {
         if (multiLine == null) {
             return null;
         }
-        return multiLine.replaceAll("\n", " ");
+        return multiLine
+                .replaceAll("\n", " ")
+                .replaceAll("  ", " ")
+                .replaceAll("  ", " ")
+                .replaceAll("  ", " ")
+                .replaceAll("  ", " ");
     }
 }
