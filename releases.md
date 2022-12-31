@@ -1,5 +1,8 @@
 # Releases
 
+## 1.0.1 (2022-12-31)
+* log invalid messages at warning log level
+
 ## 1.0.0 (2022-08-26)
 * removing metrics:
   * jsonUnrecognized / jsonValid
